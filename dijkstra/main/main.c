@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
         char* tkn = strtok(line, " \t\n\r");
         int vertex = atoi(tkn);
-        int graphIndex = vertex - 1;
+        int graphIndex = vertex - 1; // *IMP
         
         graph[graphIndex].vertex = vertex; 
         graph[graphIndex].edge = NULL;
