@@ -1,1 +1,2 @@
-./dijkstra/main/main
+/dijkstra/main/main 
+/dijkstra/main/*.o 
