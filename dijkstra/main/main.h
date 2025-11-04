@@ -15,7 +15,12 @@ typedef struct Node {
     Edge* edge;   // pointer to beginning of list of edges
 } Node;
 
+typedef struct {
+    int vertex;
+    int DGS; // Dijkstra's greedy score
+} HeapNode;
 
 #define buffsize 310       // *must be changed if diff file used. 
                            // I didnt want to grow the line buffer for this project
 static char buff[buffsize];
+

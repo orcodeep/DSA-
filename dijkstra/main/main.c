@@ -1,6 +1,16 @@
 #include "main.h"
 
+static void buildGraph(FILE* fp);
+
 Node graph[200];
+
+/* Compile-time initializaton.
+   Uses GCC/Clang range-designator extension (not part of the official ISO C standard) */
+int dist[200] = { [0 ... 199] = 1000000 }; 
+bool X[200] = { [0 ... 199] = false }; 
+int heapindex[200] = { [0 ... 199] = -1 }; 
+HeapNode heap[200] = { [0 ... 199] = { .vertex = -1, .DGS = 1000000 } };
+int heapSize = 0;
 
 int main(int argc, char* argv[])
 {
@@ -8,6 +18,23 @@ int main(int argc, char* argv[])
     FILE* fp = fopen(argv[1], "r");
     if (!fp) {fprintf(stderr, "\nError opening file\n"); return 1;}
 
+    buildGraph(fp);
+
+
+    /*
+    TEST:-
+    printf("%i\n", graph[0].vertex);
+    Edge* e = graph[0].edge;
+    while(e != NULL)
+    {
+        printf("%i, %i\n", e->head, e->weight);
+        e = e->next;
+    }
+    */
+}
+
+static void buildGraph(FILE* fp)
+{
     while(true)
     {
         char* line = fgets(buff, buffsize, fp);
@@ -40,17 +67,6 @@ int main(int argc, char* argv[])
         }
     }
     fclose(fp);
-
-    /*
-    TEST:-
-
-    printf("%i\n", graph[0].vertex);
-    Edge* e = graph[0].edge;
-    while(e != NULL)
-    {
-        printf("%i, %i\n", e->head, e->weight);
-        e = e->next;
-    }
-    */
+    return;  
 }
 
