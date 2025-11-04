@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef struct Edge {
     int head;          // destination vertex
@@ -14,6 +16,6 @@ typedef struct Node {
 } Node;
 
 
-static int buffsize = 310; // *must be changed if diff file used. 
+#define buffsize 310       // *must be changed if diff file used. 
                            // I didnt want to grow the line buffer for this project
-static char* buff = NULL;
+static char buff[buffsize];

@@ -2,7 +2,7 @@
 
 Node graph[200];
 
-static int main(int argc, char* argv[])
+int main(int argc, char* argv[])
 {
     if(argc != 2) {fprintf(stderr, "\nUsage: ./main filename.txt\n"); return 1;}
     FILE* fp = fopen(argv[1], "r");
@@ -14,16 +14,16 @@ static int main(int argc, char* argv[])
         if(line == NULL) break; 
 
         char* tkn = strtok(line, " \t\n\r");
-        int graphIndex = atoi(tkn);
-        int vertex = graphIndex;
+        int vertex = atoi(tkn);
+        int graphIndex = vertex - 1;
         
         graph[graphIndex].vertex = vertex; 
         graph[graphIndex].edge = NULL;
         
         while((tkn = strtok(NULL, " \t\n\r")) != NULL)
         {
-            int head;
-            int weight;
+            int head = 0;
+            int weight = 0;
 
             char* comma = strchr(tkn, ','); // find the comma
             *comma = '\0';                  // split the string
@@ -39,5 +39,18 @@ static int main(int argc, char* argv[])
 
         }
     }
+    fclose(fp);
+
+    /*
+    TEST:-
+
+    printf("%i\n", graph[0].vertex);
+    Edge* e = graph[0].edge;
+    while(e != NULL)
+    {
+        printf("%i, %i\n", e->head, e->weight);
+        e = e->next;
+    }
+    */
 }
 
