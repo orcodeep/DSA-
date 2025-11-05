@@ -42,9 +42,9 @@ void runDijkstra(Node source)
     // initialise arrays
     int index = source.vertex - 1;
     X[index] = true;
-    // dist[index] = 0;
     heap[heapSize].vertex = source.vertex;
     heap[heapSize].key = 0;
+    heapindex[index] = heapSize;
     heapSize++; 
 
     while(heapSize != 0)
@@ -54,11 +54,97 @@ void runDijkstra(Node source)
 
 }
 
-void popHeap()
+static void popHeap(void)
 {
     // we must finalise its distance and relax its edges
+    int index = heap[0].vertex - 1; 
+    if (!(heap[0].key > dist[index]))
+        dist[index] = heap[0].key; 
+
+    Edge* head = graph[index].edge; 
+    relaxEdges(heap[0].vertex, head); // tail vertex is just the vertex being popped 
+
+    // now we delete this vertex and promote the last leaf in the heap to the first
+    // and bubble down to its correct position to restore heap property 
+    
 }
 
+static void relaxEdges(int tail, Edge* head)
+{
+    Edge* edge = head;
+
+    while(edge != NULL)
+    {
+        int index = edge->headVertex - 1;
+        int hIndex = heapindex[index];
+        if (dist[index] != -1) // i.e finalised
+        {
+            edge = edge->next;
+            continue;
+        }
+
+        if (X[index] == false) // i.e not explored
+        {
+            heapInsert(tail, edge);
+        }
+        else // i.e explored before
+        {
+            int DGS = dist[tail - 1] + edge->weight; 
+            if (DGS < heap[hIndex].key) 
+            {
+                    heap[hIndex].key = DGS; 
+                    bubbleUp(hIndex);
+            }
+        }
+
+        edge = edge->next;
+    }
+}
+
+
+static void heapInsert(int tail, Edge* edge)
+{
+    // now its index in the heap = heapSize for now because we havent yet checked
+    // if heap property is violated by it
+    int hIndex = heapSize; // heapIndex
+    heap[hIndex].vertex = edge->headVertex;
+
+    /* now for the key we have to calculate its DGS 
+       if edge between: (v*, w*),
+       DGS = dist[v*index] + edge->weight;  */
+    int DGS = dist[tail - 1] + edge->weight; 
+    heap[hIndex].key = DGS;
+    heapindex[edge->headVertex - 1] = hIndex;
+    bubbleUp(hIndex);
+    heapSize++;
+}
+
+static void bubbleUp(int u)
+{
+    // u is the hIndex of the newly inserted vertex in the heap array
+    // lets call the edge (v, u). v is the index of parent of u
+    int v = (u - 1) / 2; // since our heapSize is starts from 0 
+    int tvertex; int tkey;
+    while (u != 0 && heap[u].key < heap[v].key) 
+    // u!=0 check must be 1st so that the next condition doesnt give undefined behaviour
+    {
+        tvertex = heap[v].vertex;
+        tkey = heap[v].key;
+
+        heap[v].vertex = heap[u].vertex;
+        heap[v].key = heap[u].key;
+
+        heap[u].vertex = tvertex;
+        heap[u].key = tkey; 
+
+        // Update heapindex[] after the swap
+        heapindex[heap[u].vertex - 1] = u;
+        heapindex[heap[v].vertex - 1] = v;
+
+        u = v;
+        v = (u - 1) / 2;
+    }
+}
 
 static void buildGraph(FILE* fp)
 {
@@ -76,17 +162,17 @@ static void buildGraph(FILE* fp)
         
         while((tkn = strtok(NULL, " \t\n\r")) != NULL)
         {
-            int head = 0;
+            int headVertex = 0;
             int weight = 0;
 
             char* comma = strchr(tkn, ','); // find the comma
             *comma = '\0';                  // split the string
 
-            head = atoi(tkn);               // part before comma
+            headVertex = atoi(tkn);               // part before comma
             weight = atoi(comma + 1);
 
             Edge* e = malloc(sizeof(Edge));
-            e->head = head;
+            e->headVertex = headVertex;
             e->weight = weight;
             e->next = graph[graphIndex].edge;
             graph[graphIndex].edge = e;

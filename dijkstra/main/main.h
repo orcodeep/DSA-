@@ -5,7 +5,7 @@
 #include <string.h>
 
 typedef struct Edge {
-    int head;          // destination vertex
+    int headVertex;          // destination vertex
     int weight;
     struct Edge* next; // next edge in adjacency list
 } Edge;
