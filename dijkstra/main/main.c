@@ -31,19 +31,10 @@ int main(int argc, char* argv[])
     runDijkstra(source);
 
     // print the shortest paths required
-
+    printf("%i,%i,%i,%i,%i,%i,%i,%i,%i,%i\n", dist[7-1] ,dist[37-1], dist[59-1], dist[82-1], dist[99-1], dist[115-1], 
+                                              dist[133-1], dist[165-1], dist[188-1], dist[197-1]);
+                                              
     freeGraph();
-
-    /*
-    TEST:-
-    printf("%i\n", graph[0].vertex);
-    Edge* e = graph[0].edge;
-    while(e != NULL)
-    {
-        printf("%i, %i\n", e->head, e->weight);
-        e = e->next;
-    }
-    */
 }
 
 void runDijkstra(Node source)
@@ -64,7 +55,7 @@ static void popHeap(void)
 {
     // we must finalise its distance and relax its edges
     int index = heap[0].vertex - 1; 
-    if (dist[index] == -1)
+    if (dist[index] == 1000000)
         dist[index] = heap[0].key; 
 
     Edge* head = graph[index].edge; 
@@ -94,7 +85,7 @@ static void relaxEdges(int tail, Edge* head)
     {
         int index = edge->headVertex - 1;
         
-        if (dist[index] != -1) // i.e finalised
+        if (dist[index] != 1000000) // i.e finalised
         {
             edge = edge->next;
             continue;

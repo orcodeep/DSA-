@@ -20,4 +20,5 @@ Relaxing edges marks new vertices as Explored (if it wasnt already Explored or f
 
 The heapSize tells us the next available place in the heap array. 
 
-    - Put newly explored vertex in that position and then swap as required to restore heap condition.
+    Put newly explored vertex in that position and then swap as required    
+    to restore heap condition.
