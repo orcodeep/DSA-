@@ -1,6 +1,12 @@
 #include "main.h"
 
 static void buildGraph(FILE* fp);
+static void bubbleUp(int u);
+static void heapInsert(int tail, Edge* edge);
+static void bubbleDown(int u);
+static void relaxEdges(int tail, Edge* head);
+static void popHeap(void);
+void freeGraph(void);
 
 Node graph[200]; // the edges in the nodes must be freed
 
@@ -24,6 +30,9 @@ int main(int argc, char* argv[])
 
     runDijkstra(source);
 
+    // print the shortest paths required
+
+    freeGraph();
 
     /*
     TEST:-
@@ -48,25 +57,33 @@ void runDijkstra(Node source)
     heapSize++; 
 
     while(heapSize != 0)
-    {
         popHeap();
-    }
-
 }
 
 static void popHeap(void)
 {
     // we must finalise its distance and relax its edges
     int index = heap[0].vertex - 1; 
-    if (!(heap[0].key > dist[index]))
+    if (dist[index] == -1)
         dist[index] = heap[0].key; 
 
     Edge* head = graph[index].edge; 
     relaxEdges(heap[0].vertex, head); // tail vertex is just the vertex being popped 
 
-    // now we delete this vertex and promote the last leaf in the heap to the first
-    // and bubble down to its correct position to restore heap property 
-    
+ /* now we delete this vertex and promote the last leaf in the heap to the first
+    and then we should bubble down to its correct position to restore heap property.
+    heapSize is 0 indexed and always points to the next available space */
+    heapindex[heap[0].vertex - 1] = -1;
+    heap[0].vertex = heap[heapSize - 1].vertex;
+    heap[0].key = heap[heapSize - 1].key;
+
+    heapindex[heap[heapSize - 1].vertex - 1] = 0;
+    heap[heapSize - 1].vertex = -1;
+    heap[heapSize - 1].key = 1000000;
+    heapSize--;
+
+    /* now we bubble down the flase root and then we are done */
+    bubbleDown(0);
 }
 
 static void relaxEdges(int tail, Edge* head)
@@ -76,7 +93,7 @@ static void relaxEdges(int tail, Edge* head)
     while(edge != NULL)
     {
         int index = edge->headVertex - 1;
-        int hIndex = heapindex[index];
+        
         if (dist[index] != -1) // i.e finalised
         {
             edge = edge->next;
@@ -87,9 +104,10 @@ static void relaxEdges(int tail, Edge* head)
         {
             heapInsert(tail, edge);
         }
-        else // i.e explored before
+        else                   // i.e explored before
         {
             int DGS = dist[tail - 1] + edge->weight; 
+            int hIndex = heapindex[index];
             if (DGS < heap[hIndex].key) 
             {
                     heap[hIndex].key = DGS; 
@@ -101,6 +119,42 @@ static void relaxEdges(int tail, Edge* head)
     }
 }
 
+static void bubbleDown(int u)
+{
+    int v1; int v2;
+    int tvertex; int tkey;
+    int smallest;
+
+    while(true)
+    {
+        v1 = 2*u + 1;
+        v2 = 2*u + 2;
+        smallest = u;
+
+        if (v1 < heapSize && heap[v1].key < heap[u].key)
+            smallest = v1;
+        if (v2 < heapSize && heap[v2].key < heap[smallest].key)
+            smallest = v2;
+
+        if (smallest == u)
+            break;
+
+        tvertex = heap[smallest].vertex;
+        tkey = heap[smallest].key;
+
+        heap[smallest].vertex = heap[u].vertex;
+        heap[smallest].key = heap[u].key;
+
+        heap[u].vertex = tvertex;
+        heap[u].key = tkey;
+
+        // Update heapindex[] after the swap 
+        heapindex[heap[u].vertex - 1] = u;
+        heapindex[heap[smallest].vertex - 1] = smallest;
+
+        u = smallest;
+    }
+}
 
 static void heapInsert(int tail, Edge* edge)
 {
@@ -115,8 +169,10 @@ static void heapInsert(int tail, Edge* edge)
     int DGS = dist[tail - 1] + edge->weight; 
     heap[hIndex].key = DGS;
     heapindex[edge->headVertex - 1] = hIndex;
+    X[edge->headVertex - 1] = true;
     bubbleUp(hIndex);
-    heapSize++;
+    if (heapSize <= 199)
+        heapSize++;
 }
 
 static void bubbleUp(int u)
@@ -183,3 +239,21 @@ static void buildGraph(FILE* fp)
     return;  
 }
 
+void freeGraph(void)
+{
+    Edge* head; Edge* current;
+    for (int i = 0; i < 200; i++)
+    {
+        head = graph[i].edge;
+        current = head;
+        Edge* next;
+        while(current != NULL)
+        {
+            next = current->next;
+            free(current);
+            current = next;
+        }
+        graph[i].edge = NULL; /* Otherwise graph[i].edge still points to old memory
+                                 i.e dangling pointer. Pointing it to NULL is safer */
+    }
+}
