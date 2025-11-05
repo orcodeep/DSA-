@@ -17,10 +17,11 @@ typedef struct Node {
 
 typedef struct {
     int vertex;
-    int DGS; // Dijkstra's greedy score
+    int key; // Dijkstra's greedy score
 } HeapNode;
 
 #define buffsize 310       // *must be changed if diff file used. 
                            // I didnt want to grow the line buffer for this project
 static char buff[buffsize];
 
+void runDijkstra(Node source);

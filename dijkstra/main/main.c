@@ -2,14 +2,14 @@
 
 static void buildGraph(FILE* fp);
 
-Node graph[200];
+Node graph[200]; // the edges in the nodes must be freed
 
 /* Compile-time initializaton.
    Uses GCC/Clang range-designator extension (not part of the official ISO C standard) */
 int dist[200] = { [0 ... 199] = 1000000 }; 
 bool X[200] = { [0 ... 199] = false }; 
 int heapindex[200] = { [0 ... 199] = -1 }; 
-HeapNode heap[200] = { [0 ... 199] = { .vertex = -1, .DGS = 1000000 } };
+HeapNode heap[200] = { [0 ... 199] = { .vertex = -1, .key = 1000000 } };
 int heapSize = 0;
 
 int main(int argc, char* argv[])
@@ -19,6 +19,10 @@ int main(int argc, char* argv[])
     if (!fp) {fprintf(stderr, "\nError opening file\n"); return 1;}
 
     buildGraph(fp);
+
+    Node source = graph[0]; // Taking Node 1 as src
+
+    runDijkstra(source);
 
 
     /*
@@ -32,6 +36,29 @@ int main(int argc, char* argv[])
     }
     */
 }
+
+void runDijkstra(Node source)
+{
+    // initialise arrays
+    int index = source.vertex - 1;
+    X[index] = true;
+    // dist[index] = 0;
+    heap[heapSize].vertex = source.vertex;
+    heap[heapSize].key = 0;
+    heapSize++; 
+
+    while(heapSize != 0)
+    {
+        popHeap();
+    }
+
+}
+
+void popHeap()
+{
+    // we must finalise its distance and relax its edges
+}
+
 
 static void buildGraph(FILE* fp)
 {
@@ -55,7 +82,7 @@ static void buildGraph(FILE* fp)
             char* comma = strchr(tkn, ','); // find the comma
             *comma = '\0';                  // split the string
 
-            head = atoi(tkn);                     // part before comma
+            head = atoi(tkn);               // part before comma
             weight = atoi(comma + 1);
 
             Edge* e = malloc(sizeof(Edge));
